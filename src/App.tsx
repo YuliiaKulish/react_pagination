@@ -34,6 +34,7 @@ export const App: React.FC = () => {
             data-cy="perPageSelector"
             id="perPageSelector"
             className="form-control"
+            value={perPage}
             onChange={handleSelect}
           >
             <option value="3">3</option>
