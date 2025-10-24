@@ -1,24 +1,38 @@
-import React, { useState } from 'react';
+import { FC, useState } from 'react';
 import './App.css';
 import { getNumbers } from './utils';
 import { Pagination } from './components/Pagination';
+import { useSearchParams } from 'react-router-dom';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const items = getNumbers(1, 42).map(n => `Item ${n}`);
 
-export const App: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [perPage, setPerPage] = useState(5);
+export const App: FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const pageFromUrl = Number(searchParams.get('page')) || 1;
+  const perPageFromUrl = Number(searchParams.get('perPage')) || 5;
+
+  const [currentPage, setCurrentPage] = useState(pageFromUrl);
+  const [perPage, setPerPage] = useState(perPageFromUrl);
 
   const startIndex = (currentPage - 1) * perPage;
   const startItem = startIndex + 1;
   const endItem = Math.min(currentPage * perPage, items.length);
   const visibleItems = items.slice(startIndex, startIndex + perPage);
 
-  function handleSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-    setPerPage(Number(event.target.value));
+  const handlePageChange = (newPage: number) => {
+    setSearchParams({
+      page: String(newPage),
+      perPage: String(perPage),
+    });
+
+    setCurrentPage(newPage);
+  };
+
+  const handlePerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentPage(1);
-  }
+    setPerPage(Number(event.target.value));
+  };
 
   return (
     <div className="container">
@@ -35,7 +49,7 @@ export const App: React.FC = () => {
             id="perPageSelector"
             className="form-control"
             value={perPage}
-            onChange={handleSelect}
+            onChange={handlePerPageChange}
           >
             <option value="3">3</option>
             <option value="5">5</option>
@@ -53,7 +67,7 @@ export const App: React.FC = () => {
         total={items.length}
         perPage={perPage}
         currentPage={currentPage}
-        onPageChange={setCurrentPage}
+        onPageChange={handlePageChange}
       />
       <ul>
         {visibleItems.map(item => (

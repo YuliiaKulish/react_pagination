@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import React from 'react';
+import { FC, MouseEvent } from 'react';
 
 type Props = {
   total: number;
@@ -8,47 +8,58 @@ type Props = {
   onPageChange: (page: number) => void;
 };
 
-export const Pagination: React.FC<Props> = ({
+export const Pagination: FC<Props> = ({
   total,
   perPage,
   currentPage,
   onPageChange,
 }) => {
   const totalPages = Math.ceil(total / perPage);
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  const handleSwitchPageDown = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    if (currentPage > 1) {
+      onPageChange(currentPage - 1);
+    }
+  };
+
+  const handleSwitchPageUp = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+
+    if (currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
+  };
 
   return (
     <ul className="pagination">
-      <li className={classNames('page-item', { disabled: currentPage === 1 })}>
+      <li
+        className={classNames('page-item', {
+          disabled: currentPage === 1,
+        })}
+      >
         <a
           data-cy="prevLink"
           className="page-link"
           href="#prev"
-          aria-disabled={currentPage === 1}
-          onClick={e => {
-            e.preventDefault();
-            if (currentPage > 1) {
-              onPageChange(currentPage - 1);
-            }
-          }}
+          aria-disabled={currentPage !== 1}
+          onClick={handleSwitchPageDown}
         >
           «
         </a>
       </li>
-      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+      {pageNumbers.map(page => (
         <li
+          className={classNames('page-item', { active: currentPage === page })}
           key={page}
-          className={classNames('page-item', { active: page === currentPage })}
         >
           <a
             data-cy="pageLink"
             className="page-link"
             href={`#${page}`}
-            onClick={e => {
-              e.preventDefault();
-              if (page !== currentPage) {
-                onPageChange(page);
-              }
-            }}
+            onClick={() => onPageChange(page)}
           >
             {page}
           </a>
@@ -64,12 +75,7 @@ export const Pagination: React.FC<Props> = ({
           className="page-link"
           href="#next"
           aria-disabled={currentPage === totalPages}
-          onClick={e => {
-            e.preventDefault();
-            if (currentPage < totalPages) {
-              onPageChange(currentPage + 1);
-            }
-          }}
+          onClick={handleSwitchPageUp}
         >
           »
         </a>
