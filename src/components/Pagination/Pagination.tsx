@@ -44,7 +44,7 @@ export const Pagination: FC<Props> = ({
           data-cy="prevLink"
           className="page-link"
           href="#prev"
-          aria-disabled={currentPage !== 1}
+          aria-disabled={currentPage === 1}
           onClick={handleSwitchPageDown}
         >
           «
